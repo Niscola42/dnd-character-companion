@@ -49,4 +49,53 @@ def test_character_rejects_level_outside_mvp(
             abilities=abilities,
         )
 
+@pytest.mark.parametrize("invalid_name", ["", "   "])
+def test_character_rejects_blank_name(
+    invalid_name: str,
+) -> None:
+    abilities = AbilityScores(
+        strength=10,
+        dexterity=10,
+        constitution=10,
+        intelligence=10,
+        wisdom=10,
+        charisma=10,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="name must not be blank",
+    ):
+        Character(
+            name=invalid_name,
+            level=1,
+            character_class="Paladin",
+            abilities=abilities,
+        )
+
+
+@pytest.mark.parametrize("invalid_class", ["", "   "])
+def test_character_rejects_blank_class(
+    invalid_class: str,
+) -> None:
+    abilities = AbilityScores(
+        strength=10,
+        dexterity=10,
+        constitution=10,
+        intelligence=10,
+        wisdom=10,
+        charisma=10,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="character_class must not be blank",
+    ):
+        Character(
+            name="Arthur",
+            level=1,
+            character_class=invalid_class,
+            abilities=abilities,
+        )
+
     

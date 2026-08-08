@@ -11,5 +11,11 @@ class Character:
     abilities: AbilityScores
 
     def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("name must not be blank")
+
+        if not self.character_class.strip():
+            raise ValueError("character_class must not be blank")
+
         if not 1 <= self.level <= 5:
             raise ValueError("level must be between 1 and 5")
