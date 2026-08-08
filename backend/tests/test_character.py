@@ -98,4 +98,40 @@ def test_character_rejects_blank_class(
             abilities=abilities,
         )
 
-    
+def test_character_calculates_proficiency_bonus() -> None:
+    abilities = AbilityScores(
+        strength=16,
+        dexterity=12,
+        constitution=14,
+        intelligence=8,
+        wisdom=10,
+        charisma=18,
+    )
+
+    character = Character(
+        name="Arthur",
+        level=5,
+        character_class="Paladin",
+        abilities=abilities,
+    )
+
+    assert character.proficiency_bonus == 3
+
+def test_character_calculates_initiative() -> None:
+    abilities = AbilityScores(
+        strength=16,
+        dexterity=14,
+        constitution=12,
+        intelligence=8,
+        wisdom=10,
+        charisma=18,
+    )
+
+    character = Character(
+        name="Arthur",
+        level=5,
+        character_class="Paladin",
+        abilities=abilities,
+    )
+
+    assert character.initiative == 2

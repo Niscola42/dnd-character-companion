@@ -50,3 +50,45 @@ def test_ability_scores_reject_invalid_scores(
         match=f"{field} must be between 1 and 20",
     ):
         AbilityScores(**scores)
+
+@pytest.mark.parametrize(
+    ("ability", "expected_modifier"),
+    [
+        ("strength", 3),
+        ("dexterity", 1),
+        ("constitution", 2),
+        ("intelligence", -1),
+        ("wisdom", 0),
+        ("charisma", 4),
+    ],
+)
+def test_ability_scores_calculate_modifiers(
+    ability: str,
+    expected_modifier: int,
+) -> None:
+    scores = AbilityScores(
+        strength=16,
+        dexterity=12,
+        constitution=14,
+        intelligence=8,
+        wisdom=10,
+        charisma=18,
+    )
+
+    assert scores.modifier_for(ability) == expected_modifier
+
+def test_ability_scores_reject_unknown_ability() -> None:
+    scores = AbilityScores(
+        strength=10,
+        dexterity=10,
+        constitution=10,
+        intelligence=10,
+        wisdom=10,
+        charisma=10,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="unknown ability: luck",
+    ):
+        scores.modifier_for("luck")
