@@ -23,3 +23,13 @@ def test_proficiency_bonus(
     expected_bonus: int,
 ) -> None:
     assert proficiency_bonus(level) == expected_bonus
+
+@pytest.mark.parametrize("invalid_level", [0, -1, 21])
+def test_proficiency_bonus_rejects_invalid_level(
+    invalid_level: int,
+) -> None:
+    with pytest.raises(
+        ValueError,
+        match="level must be between 1 and 20",
+    ):
+        proficiency_bonus(invalid_level)

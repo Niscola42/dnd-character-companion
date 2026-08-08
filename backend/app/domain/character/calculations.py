@@ -6,4 +6,7 @@ def ability_modifier(score: int) -> int:
 def proficiency_bonus(level: int) -> int:
     """Calculate the proficiency bonus for a character level."""
 
+    if not 1 <= level <= 20:
+        raise ValueError("level must be between 1 and 20")
+
     return 2 + (level - 1) // 4
