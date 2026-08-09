@@ -33,3 +33,4 @@ def test_proficiency_bonus_rejects_invalid_level(
         match="level must be between 1 and 20",
     ):
         proficiency_bonus(invalid_level)
+

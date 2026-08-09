@@ -10,12 +10,19 @@ Current milestone: V0.1 — Character Core.
 
 ## Requirements
 
-- Python 3.9 or newer
 - Git
+- Python 3.9 or newer
+- Docker with Docker Compose
 
 ## Backend setup
 
-Create and activate a virtual environment:
+Create the local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Create and activate a Python virtual environment:
 
 ```bash
 python3 -m venv .venv
@@ -28,10 +35,40 @@ Install the development dependencies:
 python -m pip install -r backend/requirements-dev.txt
 ```
 
-## Run the backend
+## Start the database
 
 ```bash
-cd backend
+docker compose up -d database
+docker compose ps
+```
+
+PostgreSQL is exposed locally on port `5433`.
+
+Stop the database without deleting its data:
+
+```bash
+docker compose down
+```
+
+## Run database migrations
+
+From the `backend` directory:
+
+```bash
+alembic upgrade head
+```
+
+Show the current migration:
+
+```bash
+alembic current
+```
+
+## Run the backend
+
+From the `backend` directory:
+
+```bash
 uvicorn app.main:app --reload
 ```
 
