@@ -4,6 +4,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    JSON,
     SmallInteger,
     String,
     func,
@@ -11,6 +12,8 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.connection import Base
+
+from typing import Optional
 
 
 class CharacterModel(Base):
@@ -58,6 +61,25 @@ class CharacterModel(Base):
     intelligence: Mapped[int] = mapped_column(SmallInteger)
     wisdom: Mapped[int] = mapped_column(SmallInteger)
     charisma: Mapped[int] = mapped_column(SmallInteger)
+
+    saving_throw_proficiencies: Mapped[list[str]] = (
+        mapped_column(
+            JSON,
+            default=list,
+            nullable=False,
+        )
+    )
+    skill_proficiencies: Mapped[list[str]] = mapped_column(
+        JSON,
+        default=list,
+        nullable=False,
+    )
+    spellcasting_ability: Mapped[Optional[str]] = (
+        mapped_column(
+            String(20),
+            nullable=True,
+        )
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

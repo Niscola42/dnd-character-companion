@@ -27,6 +27,8 @@ class Character:
         default_factory=frozenset
     )
     spellcasting_ability: Optional[str] = None
+    id: Optional[int] = None
+    owner_id: Optional[int] = None
 
     def __post_init__(self) -> None:
         if not self.name.strip():
