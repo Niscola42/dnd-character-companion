@@ -22,6 +22,14 @@ Create the local environment file:
 cp .env.example .env
 ```
 
+Generate a local JWT secret:
+
+```bash
+openssl rand -hex 32
+```
+
+Set the generated value as `JWT_SECRET_KEY` in `.env`. Never commit the local `.env` file.
+
 Create and activate a Python virtual environment:
 
 ```bash
@@ -78,6 +86,21 @@ The API will be available at:
 - Interactive documentation: <http://127.0.0.1:8000/docs>
 
 Press `Ctrl+C` to stop the server.
+
+## Authentication
+
+Available endpoints:
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+
+Protected endpoints expect an access token:
+
+```text
+Authorization: Bearer <access-token>
+JWT access tokens expire after 30 minutes by default.
+```
 
 ## Run the tests
 

@@ -34,3 +34,9 @@ class UserRepository:
         )
 
         return self._session.scalar(statement)
+
+    def get_by_id(
+        self,
+        user_id: int,
+    ) -> Optional[UserModel]:
+        return self._session.get(UserModel, user_id)
