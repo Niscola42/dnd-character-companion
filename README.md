@@ -102,6 +102,29 @@ Authorization: Bearer <access-token>
 JWT access tokens expire after 30 minutes by default.
 ```
 
+## Character API
+
+All character endpoints require Bearer authentication.
+
+Available endpoints:
+
+- `POST /api/characters`
+- `GET /api/characters`
+- `GET /api/characters/{character_id}`
+
+Character responses include calculated values such as:
+
+- ability modifiers;
+- proficiency bonus;
+- saving throw modifiers;
+- skill modifiers;
+- initiative;
+- passive perception;
+- spell attack modifier;
+- spell save DC.
+
+Character queries are always restricted to the authenticated owner.
+
 ## Run the tests
 
 From the `backend` directory:
