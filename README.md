@@ -43,6 +43,45 @@ Install the development dependencies:
 python -m pip install -r backend/requirements-dev.txt
 ```
 
+## Frontend setup
+
+Install the frontend dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Optionally create a local frontend environment file:
+
+```bash
+cp .env.example .env
+```
+
+## Run the frontend
+
+From the `frontend` directory:
+
+```bash
+npm run dev
+```
+
+The web application will be available at:
+
+- <http://localhost:5173>
+
+The backend must also be running at `http://127.0.0.1:8000`.
+
+## Frontend checks
+
+From the `frontend` directory:
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
 ## Start the database
 
 ```bash
