@@ -45,14 +45,32 @@ export function CharacterListPage() {
 
       <Container sx={{ py: 4 }}>
         <Stack spacing={3}>
-          <Box>
+            <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={2}
+                sx={{
+                    justifyContent: 'space-between',
+                    alignItems: {
+                    xs: 'stretch',
+                    sm: 'center',
+                    },
+                }}
+                >
+        <Box>
             <Typography variant="h3" component="h1">
-              Your Characters
+            Your Characters
             </Typography>
             <Typography color="text.secondary">
-              Choose a character to continue your adventure.
+            Choose a character to continue your adventure.
             </Typography>
-          </Box>
+        </Box>
+        <Button
+            variant="contained"
+            onClick={() => navigate('/characters/new')}
+        >
+            Create character
+        </Button>
+        </Stack>
 
           {charactersQuery.isPending && (
             <Box sx={{ display: 'grid', placeItems: 'center' }}>
@@ -102,6 +120,14 @@ export function CharacterListPage() {
                         Passive Perception:{' '}
                         {character.passive_perception}
                       </Typography>
+
+                      <Button
+                        onClick={() =>
+                            navigate(`/characters/${character.id}`)
+                        }
+                        >
+                        Open dashboard
+                        </Button>
                     </Stack>
                   </CardContent>
                 </Card>

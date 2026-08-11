@@ -97,6 +97,17 @@ Stop the database without deleting its data:
 docker compose down
 ```
 
+## Current frontend features
+
+- JWT sign-in and sign-out;
+- protected character routes;
+- authenticated character list;
+- Paladin character creation;
+- character dashboard with derived statistics;
+- responsive Material UI layout;
+- route-based code splitting;
+- automated tests for login, list, creation, and detail flows.
+
 ## Run database migrations
 
 From the `backend` directory:

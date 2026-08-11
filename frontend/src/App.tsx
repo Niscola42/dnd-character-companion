@@ -1,10 +1,36 @@
+import {
+  lazy,
+  Suspense,
+  type PropsWithChildren,
+} from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { CharacterListPage } from './pages/CharacterListPage'
-import { LoginPage } from './pages/LoginPage'
-
-import type { PropsWithChildren } from 'react'
 import { getAccessToken } from './services/auth'
+
+
+const LoginPage = lazy(() =>
+  import('./pages/LoginPage').then((module) => ({
+    default: module.LoginPage,
+  })),
+)
+
+const CharacterListPage = lazy(() =>
+  import('./pages/CharacterListPage').then((module) => ({
+    default: module.CharacterListPage,
+  })),
+)
+
+const CharacterCreatePage = lazy(() =>
+  import('./pages/CharacterCreatePage').then((module) => ({
+    default: module.CharacterCreatePage,
+  })),
+)
+
+const CharacterDetailPage = lazy(() =>
+  import('./pages/CharacterDetailPage').then((module) => ({
+    default: module.CharacterDetailPage,
+  })),
+)
 
 
 function ProtectedRoute({ children }: PropsWithChildren) {
@@ -15,20 +41,45 @@ function ProtectedRoute({ children }: PropsWithChildren) {
   return children
 }
 
+
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/characters"
-        element={
-          <ProtectedRoute>
-            <CharacterListPage />
-          </ProtectedRoute>
-  }
-/>
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/characters"
+          element={
+            <ProtectedRoute>
+              <CharacterListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/characters/new"
+          element={
+            <ProtectedRoute>
+              <CharacterCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/characters/:characterId"
+          element={
+            <ProtectedRoute>
+              <CharacterDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+      </Routes>
+    </Suspense>
   )
 }
