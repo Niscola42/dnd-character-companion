@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 
+import { afterEach } from 'vitest'
+import { cleanup } from '@testing-library/react'
 
 const storage = new Map<string, string>()
 
@@ -33,3 +35,7 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
   configurable: true,
 })
+
+afterEach(() => {
+    cleanup()
+  })

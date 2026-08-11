@@ -146,6 +146,21 @@ def test_character_api_enforces_ownership_and_validation(
         f"/api/characters/{character_id}",
         headers=second_headers,
     )
+
+    forbidden_update = api_client.put(
+        f"/api/characters/{character_id}",
+        json=character_payload(),
+        headers=second_headers,
+    )
+    forbidden_delete = api_client.delete(
+        f"/api/characters/{character_id}",
+        headers=second_headers,
+    )
+    owner_still_has_character = api_client.get(
+        f"/api/characters/{character_id}",
+        headers=first_headers,
+    )
+
     unauthenticated_list = api_client.get(
         "/api/characters"
     )
@@ -166,9 +181,69 @@ def test_character_api_enforces_ownership_and_validation(
         headers=first_headers,
     )
 
+    assert forbidden_update.status_code == 404
+    assert forbidden_delete.status_code == 404
+    assert owner_still_has_character.status_code == 200
     assert second_list.status_code == 200
     assert second_list.json() == []
     assert forbidden_detail.status_code == 404
     assert unauthenticated_list.status_code == 401
     assert invalid_response.status_code == 422
     assert blank_name_response.status_code == 422
+
+def test_character_api_update_and_delete(
+    api_client: TestClient,
+) -> None:
+    token = register_and_get_token(
+        api_client,
+        "editor@example.com",
+    )
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
+
+    created = api_client.post(
+        "/api/characters",
+        json=character_payload(),
+        headers=headers,
+    ).json()
+    character_id = created["id"]
+
+    updated_payload = character_payload()
+    updated_payload["name"] = "Arthur Pendragon"
+    updated_payload["level"] = 4
+    updated_payload["abilities"] = {
+        **updated_payload["abilities"],
+        "strength": 18,
+    }
+
+    update_response = api_client.put(
+        f"/api/characters/{character_id}",
+        json=updated_payload,
+        headers=headers,
+    )
+
+    assert update_response.status_code == 200
+    updated = update_response.json()
+    assert updated["name"] == "Arthur Pendragon"
+    assert updated["level"] == 4
+    assert updated["abilities"]["strength"] == 18
+    assert updated["ability_modifiers"]["strength"] == 4
+    assert updated["proficiency_bonus"] == 2
+
+    delete_response = api_client.delete(
+        f"/api/characters/{character_id}",
+        headers=headers,
+    )
+    detail_after_delete = api_client.get(
+        f"/api/characters/{character_id}",
+        headers=headers,
+    )
+    list_after_delete = api_client.get(
+        "/api/characters",
+        headers=headers,
+    )
+
+    assert delete_response.status_code == 204
+    assert detail_after_delete.status_code == 404
+    assert list_after_delete.json() == []

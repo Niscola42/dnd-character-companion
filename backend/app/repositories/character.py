@@ -17,27 +17,8 @@ class CharacterRepository:
         owner_id: int,
         character: Character,
     ) -> Character:
-        model = CharacterModel(
-            owner_id=owner_id,
-            name=character.name,
-            level=character.level,
-            character_class=character.character_class,
-            strength=character.abilities.strength,
-            dexterity=character.abilities.dexterity,
-            constitution=character.abilities.constitution,
-            intelligence=character.abilities.intelligence,
-            wisdom=character.abilities.wisdom,
-            charisma=character.abilities.charisma,
-            saving_throw_proficiencies=sorted(
-                character.saving_throw_proficiencies
-            ),
-            skill_proficiencies=sorted(
-                character.skill_proficiencies
-            ),
-            spellcasting_ability=(
-                character.spellcasting_ability
-            ),
-        )
+        model = CharacterModel(owner_id=owner_id)
+        self._apply_character(model, character)
 
         self._session.add(model)
         self._session.flush()
@@ -65,16 +46,94 @@ class CharacterRepository:
         character_id: int,
         owner_id: int,
     ) -> Optional[Character]:
-        statement = select(CharacterModel).where(
-            CharacterModel.id == character_id,
-            CharacterModel.owner_id == owner_id,
+        model = self._get_model(
+            character_id=character_id,
+            owner_id=owner_id,
         )
-        model = self._session.scalar(statement)
 
         if model is None:
             return None
 
         return self._to_domain(model)
+
+    def update_by_id_and_owner(
+        self,
+        character_id: int,
+        owner_id: int,
+        character: Character,
+    ) -> Optional[Character]:
+        model = self._get_model(
+            character_id=character_id,
+            owner_id=owner_id,
+        )
+
+        if model is None:
+            return None
+
+        self._apply_character(model, character)
+        self._session.flush()
+
+        return self._to_domain(model)
+
+    def delete_by_id_and_owner(
+        self,
+        character_id: int,
+        owner_id: int,
+    ) -> bool:
+        model = self._get_model(
+            character_id=character_id,
+            owner_id=owner_id,
+        )
+
+        if model is None:
+            return False
+
+        self._session.delete(model)
+        self._session.flush()
+
+        return True
+
+    def _get_model(
+        self,
+        character_id: int,
+        owner_id: int,
+    ) -> Optional[CharacterModel]:
+        statement = select(CharacterModel).where(
+            CharacterModel.id == character_id,
+            CharacterModel.owner_id == owner_id,
+        )
+
+        return self._session.scalar(statement)
+
+    @staticmethod
+    def _apply_character(
+        model: CharacterModel,
+        character: Character,
+    ) -> None:
+        model.name = character.name
+        model.level = character.level
+        model.character_class = (
+            character.character_class
+        )
+        model.strength = character.abilities.strength
+        model.dexterity = character.abilities.dexterity
+        model.constitution = (
+            character.abilities.constitution
+        )
+        model.intelligence = (
+            character.abilities.intelligence
+        )
+        model.wisdom = character.abilities.wisdom
+        model.charisma = character.abilities.charisma
+        model.saving_throw_proficiencies = sorted(
+            character.saving_throw_proficiencies
+        )
+        model.skill_proficiencies = sorted(
+            character.skill_proficiencies
+        )
+        model.spellcasting_ability = (
+            character.spellcasting_ability
+        )
 
     @staticmethod
     def _to_domain(model: CharacterModel) -> Character:

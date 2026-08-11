@@ -27,6 +27,9 @@ import {
     passive_perception: number
     spell_attack_modifier: number | null
     spell_save_dc: number | null
+    saving_throw_proficiencies: string[]
+    skill_proficiencies: string[]
+    spellcasting_ability: string | null
   }
   
   export type CharacterCreate = {
@@ -78,8 +81,29 @@ import {
           : 'Character request failed',
       )
     }
+    if (response.status === 204) {
+        return undefined as T
+      }
   
     return response.json()
+  }
+
+  export function updateCharacter(
+    characterId: number,
+    character: CharacterCreate,
+  ): Promise<Character> {
+    return characterRequest(`/characters/${characterId}`, {
+      method: 'PUT',
+      body: JSON.stringify(character),
+    })
+  }
+  
+  export function deleteCharacter(
+    characterId: number,
+  ): Promise<void> {
+    return characterRequest(`/characters/${characterId}`, {
+      method: 'DELETE',
+    })
   }
   
   export function fetchCharacters(): Promise<Character[]> {

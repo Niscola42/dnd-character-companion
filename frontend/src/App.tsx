@@ -38,6 +38,12 @@ const RegisterPage = lazy(() =>
   })),
 )
 
+const CharacterEditPage = lazy(() =>
+  import('./pages/CharacterEditPage').then((module) => ({
+    default: module.CharacterEditPage,
+  })),
+)
+
 function ProtectedRoute({ children }: PropsWithChildren) {
   if (!getAccessToken()) {
     return <Navigate to="/login" replace />
@@ -72,7 +78,16 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        
+
+        <Route
+          path="/characters/:characterId/edit"
+          element={
+            <ProtectedRoute>
+              <CharacterEditPage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/register" element={<RegisterPage />} />
 
         <Route

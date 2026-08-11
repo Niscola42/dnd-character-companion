@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Alert,
@@ -13,9 +14,16 @@ import {
   Stack,
   Toolbar,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material'
 
-import { fetchCharacter } from '../services/characters'
+import { queryClient } from '../queryClient'
+
+import { fetchCharacter, deleteCharacter } from '../services/characters'
 import { useRedirectOnExpiredSession } from '../hooks/useRedirectOnExpiredSession'
 
 
@@ -23,6 +31,8 @@ export function CharacterDetailPage() {
   const navigate = useNavigate()
   const { characterId } = useParams()
   const parsedCharacterId = Number(characterId)
+  const [deleteDialogOpen, setDeleteDialogOpen] =
+  useState(false)
 
   const characterQuery = useQuery({
     queryKey: ['characters', parsedCharacterId],
@@ -30,7 +40,24 @@ export function CharacterDetailPage() {
     enabled: Number.isInteger(parsedCharacterId),
   })
 
-  useRedirectOnExpiredSession(characterQuery.isError)
+  const deleteMutation = useMutation({
+    mutationFn: () =>
+      deleteCharacter(parsedCharacterId),
+    onSuccess: async () => {
+      queryClient.removeQueries({
+        queryKey: ['characters', parsedCharacterId],
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['characters'],
+      })
+      navigate('/characters')
+    },
+  })
+  
+  useRedirectOnExpiredSession(
+    characterQuery.isError || deleteMutation.isError,
+  )
+
 
   if (!Number.isInteger(parsedCharacterId)) {
     return <Alert severity="error">Invalid character.</Alert>
@@ -51,6 +78,8 @@ export function CharacterDetailPage() {
           </Typography>
         </Toolbar>
       </AppBar>
+      
+      
 
       <Container sx={{ py: 4 }}>
         {characterQuery.isPending && (
@@ -68,14 +97,67 @@ export function CharacterDetailPage() {
         {characterQuery.data && (
           <Stack spacing={4}>
             <Box>
-              <Typography variant="h3" component="h1">
+            <Typography variant="h3" component="h1">
                 {characterQuery.data.name}
-              </Typography>
-              <Typography color="text.secondary">
+            </Typography>
+            <Typography color="text.secondary">
                 Level {characterQuery.data.level}{' '}
                 {characterQuery.data.character_class}
-              </Typography>
+            </Typography>
+            <Button
+                variant="outlined"
+                onClick={() =>
+                navigate(
+                    `/characters/${parsedCharacterId}/edit`,
+                )
+                }
+                sx={{ mt: 2 }}
+            >
+                Edit character
+            </Button>
+            <Button
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+                sx={{ mt: 2, ml: 2 }}
+                >
+                Delete character               
+                </Button>
+                <Dialog
+  open={deleteDialogOpen}
+  onClose={() => setDeleteDialogOpen(false)}
+>
+  <DialogTitle>Delete character?</DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      This action permanently deletes the character.
+      It cannot be undone.
+    </DialogContentText>
+
+    {deleteMutation.isError && (
+      <Alert severity="error" sx={{ mt: 2 }}>
+        {deleteMutation.error.message}
+      </Alert>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button
+      onClick={() => setDeleteDialogOpen(false)}
+      disabled={deleteMutation.isPending}
+    >
+      Cancel
+    </Button>
+    <Button
+      color="error"
+      variant="contained"
+      onClick={() => deleteMutation.mutate()}
+      disabled={deleteMutation.isPending}
+    >
+      Delete permanently
+    </Button>
+  </DialogActions>
+</Dialog>
             </Box>
+            
 
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 4 }}>

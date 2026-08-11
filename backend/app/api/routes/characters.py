@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
+    Response,
     status,
 )
 from sqlalchemy.orm import Session
@@ -32,6 +33,26 @@ router = APIRouter(
     tags=["Characters"],
 )
 
+def from_request(
+    payload: CharacterCreateRequest,
+) -> Character:
+    return Character(
+        name=payload.name,
+        level=payload.level,
+        character_class=payload.character_class,
+        abilities=AbilityScores(
+            **payload.abilities.model_dump()
+        ),
+        saving_throw_proficiencies=frozenset(
+            payload.saving_throw_proficiencies
+        ),
+        skill_proficiencies=frozenset(
+            payload.skill_proficiencies
+        ),
+        spellcasting_ability=(
+            payload.spellcasting_ability
+        ),
+    )
 
 def to_response(
     character: Character,
@@ -115,23 +136,7 @@ def create_character(
     session: Session = Depends(get_db_session),
 ) -> CharacterResponse:
     try:
-        character = Character(
-            name=payload.name,
-            level=payload.level,
-            character_class=payload.character_class,
-            abilities=AbilityScores(
-                **payload.abilities.model_dump()
-            ),
-            saving_throw_proficiencies=frozenset(
-                payload.saving_throw_proficiencies
-            ),
-            skill_proficiencies=frozenset(
-                payload.skill_proficiencies
-            ),
-            spellcasting_ability=(
-                payload.spellcasting_ability
-            ),
-        )
+        character = from_request(payload)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -185,3 +190,59 @@ def get_character(
         ) from error
 
     return to_response(character)
+
+
+@router.put(
+    "/{character_id}",
+    response_model=CharacterResponse,
+)
+def update_character(
+    character_id: int,
+    payload: CharacterCreateRequest,
+    user: UserModel = Depends(get_current_user),
+    session: Session = Depends(get_db_session),
+) -> CharacterResponse:
+    try:
+        character = from_request(payload)
+        updated = get_service(session).update_for_owner(
+            character_id=character_id,
+            owner_id=user.id,
+            character=character,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+    except CharacterNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="character not found",
+        ) from error
+
+    return to_response(updated)
+
+
+@router.delete(
+    "/{character_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_character(
+    character_id: int,
+    user: UserModel = Depends(get_current_user),
+    session: Session = Depends(get_db_session),
+) -> Response:
+    try:
+        get_service(session).delete_for_owner(
+            character_id=character_id,
+            owner_id=user.id,
+        )
+    except CharacterNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="character not found",
+        ) from error
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT
+    )

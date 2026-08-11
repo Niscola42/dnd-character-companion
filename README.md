@@ -109,6 +109,8 @@ docker compose down
 - automated tests for login, list, creation, and detail flows.
 - account registration with automatic sign-in;
 - expired-session redirection;
+- character editing with a reusable form;
+- character deletion with explicit confirmation;
 
 ## Run database migrations
 
@@ -163,6 +165,8 @@ Available endpoints:
 - `POST /api/characters`
 - `GET /api/characters`
 - `GET /api/characters/{character_id}`
+- `PUT /api/characters/{character_id}`
+- `DELETE /api/characters/{character_id}`
 
 Character responses include calculated values such as:
 
