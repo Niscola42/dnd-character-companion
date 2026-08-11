@@ -14,6 +14,50 @@ Current milestone: V0.1 — Character Core.
 - Python 3.9 or newer
 - Docker with Docker Compose
 
+## Docker quick start
+
+Create the local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Generate a JWT secret:
+
+```bash
+openssl rand -hex 32
+```
+
+Set the generated value as `JWT_SECRET_KEY` in `.env`.
+
+Build and start the complete development stack:
+
+```bash
+docker compose up --build -d
+docker compose ps
+```
+
+Available services:
+
+- Frontend: <http://localhost:5173>
+- API documentation: <http://localhost:8000/docs>
+- API health check: <http://localhost:8000/health>
+- PostgreSQL: `localhost:5433`
+
+View logs:
+
+```bash
+docker compose logs -f
+```
+
+Stop the stack without deleting database data:
+
+```bash
+docker compose down
+```
+
+Do not use `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume.
+
 ## Backend setup
 
 Create the local environment file:
