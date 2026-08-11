@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database.models.character import CharacterModel
 from app.domain.character.abilities import AbilityScores
 from app.domain.character.character import Character
+from app.domain.character.health import HitPoints
 
 
 class CharacterRepository:
@@ -125,6 +126,15 @@ class CharacterRepository:
         )
         model.wisdom = character.abilities.wisdom
         model.charisma = character.abilities.charisma
+        model.maximum_hp = (
+            character.hit_points.maximum
+        )
+        model.current_hp = (
+            character.hit_points.current
+        )
+        model.temporary_hp = (
+            character.hit_points.temporary
+        )
         model.saving_throw_proficiencies = sorted(
             character.saving_throw_proficiencies
         )
@@ -150,6 +160,12 @@ class CharacterRepository:
                 intelligence=model.intelligence,
                 wisdom=model.wisdom,
                 charisma=model.charisma,
+            ),
+
+            hit_points=HitPoints(
+                maximum=model.maximum_hp,
+                current=model.current_hp,
+                temporary=model.temporary_hp,
             ),
             saving_throw_proficiencies=frozenset(
                 model.saving_throw_proficiencies

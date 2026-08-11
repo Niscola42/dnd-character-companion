@@ -4,6 +4,7 @@ from app.domain.character.abilities import AbilityScores
 from app.domain.character.character import Character
 from app.repositories.character import CharacterRepository
 from app.repositories.user import UserRepository
+from app.domain.character.health import HitPoints
 
 
 def make_character(name: str) -> Character:
@@ -26,6 +27,12 @@ def make_character(name: str) -> Character:
             {"athletics", "persuasion"}
         ),
         spellcasting_ability="charisma",
+
+        hit_points=HitPoints(
+            maximum=42,
+            current=31,
+            temporary=5,
+        ),
     )
 
 
@@ -64,6 +71,14 @@ def test_character_repository_round_trip_and_ownership(
         character_id=created.id,
         owner_id=second_user.id,
     )
+
+    persisted_hit_points = (
+        first_user_characters[0].hit_points
+    )
+
+    assert persisted_hit_points.maximum == 42
+    assert persisted_hit_points.current == 31
+    assert persisted_hit_points.temporary == 5
 
     assert created.id is not None
     assert created.owner_id == first_user.id

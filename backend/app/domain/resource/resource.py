@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from typing import Optional
 
 
 class RecoveryType(str, Enum):
@@ -18,6 +19,12 @@ class Resource:
     maximum: int
     current: int
     recovery_type: RecoveryType
+    id: Optional[int] = None
+    character_id: Optional[int] = None
+    source: str = "unspecified"
+    metadata: dict[str, object] = field(
+        default_factory=dict
+    )
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -44,6 +51,7 @@ class Resource:
 
     def consume(self, amount: int) -> None:
         self._validate_amount(amount)
+
         if amount > self.current:
             raise InsufficientResourceError
 

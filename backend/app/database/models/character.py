@@ -4,6 +4,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Integer,
     JSON,
     SmallInteger,
     String,
@@ -34,6 +35,18 @@ class CharacterModel(Base):
             """,
             name="ck_characters_ability_scores",
         ),
+        CheckConstraint(
+            "maximum_hp > 0",
+            name="ck_characters_maximum_hp",
+        ),
+        CheckConstraint(
+            "current_hp BETWEEN 0 AND maximum_hp",
+            name="ck_characters_current_hp",
+        ),
+        CheckConstraint(
+            "temporary_hp >= 0",
+            name="ck_characters_temporary_hp",
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -61,6 +74,22 @@ class CharacterModel(Base):
     intelligence: Mapped[int] = mapped_column(SmallInteger)
     wisdom: Mapped[int] = mapped_column(SmallInteger)
     charisma: Mapped[int] = mapped_column(SmallInteger)
+
+    maximum_hp: Mapped[int] = mapped_column(
+        Integer,
+        server_default="1",
+        nullable=False,
+    )
+    current_hp: Mapped[int] = mapped_column(
+        Integer,
+        server_default="1",
+        nullable=False,
+    )
+    temporary_hp: Mapped[int] = mapped_column(
+        Integer,
+        server_default="0",
+        nullable=False,
+    )
 
     saving_throw_proficiencies: Mapped[list[str]] = (
         mapped_column(
@@ -92,3 +121,4 @@ class CharacterModel(Base):
         onupdate=func.now(),
         nullable=False,
     )
+

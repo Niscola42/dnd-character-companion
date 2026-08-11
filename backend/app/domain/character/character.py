@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from app.domain.character.skills import SKILL_ABILITIES
+from app.domain.character.health import HitPoints
 
 from app.domain.character.abilities import (
     ABILITY_NAMES,
@@ -20,6 +21,12 @@ class Character:
     level: int
     character_class: str
     abilities: AbilityScores
+    hit_points: HitPoints = field(
+        default_factory=lambda: HitPoints(
+            maximum=1,
+            current=1,
+        )
+    )
     saving_throw_proficiencies: frozenset[str] = field(
     default_factory=frozenset
     )
