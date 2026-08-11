@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 
 import { fetchCharacter } from '../services/characters'
+import { useRedirectOnExpiredSession } from '../hooks/useRedirectOnExpiredSession'
 
 
 export function CharacterDetailPage() {
@@ -28,6 +29,8 @@ export function CharacterDetailPage() {
     queryFn: () => fetchCharacter(parsedCharacterId),
     enabled: Number.isInteger(parsedCharacterId),
   })
+
+  useRedirectOnExpiredSession(characterQuery.isError)
 
   if (!Number.isInteger(parsedCharacterId)) {
     return <Alert severity="error">Invalid character.</Alert>

@@ -107,6 +107,8 @@ docker compose down
 - responsive Material UI layout;
 - route-based code splitting;
 - automated tests for login, list, creation, and detail flows.
+- account registration with automatic sign-in;
+- expired-session redirection;
 
 ## Run database migrations
 

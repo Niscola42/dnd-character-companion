@@ -28,7 +28,7 @@ import {
     createCharacter,
     type AbilityScores,
   } from '../services/characters'
-  
+  import { useRedirectOnExpiredSession } from '../hooks/useRedirectOnExpiredSession'
   
   const PALADIN_SKILLS = [
     'athletics',
@@ -81,6 +81,8 @@ import {
         navigate(`/characters/${character.id}`)
       },
     })
+
+    useRedirectOnExpiredSession(createMutation.isError)
   
     function updateAbility(
       ability: keyof AbilityScores,

@@ -21,6 +21,8 @@ describe('CharacterListPage', () => {
     vi.unstubAllGlobals()
   })
 
+  
+
   it('shows characters and signs out', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -98,4 +100,47 @@ describe('CharacterListPage', () => {
     ).toBeInTheDocument()
     expect(getAccessToken()).toBeNull()
   })
+
+  it('redirects to login when the session expires', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        detail: 'invalid authentication credentials',
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    saveAccessToken('expired-token')
+  
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    })
+  
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/characters']}>
+          <Routes>
+            <Route
+              path="/characters"
+              element={<CharacterListPage />}
+            />
+            <Route
+              path="/login"
+              element={<div>Login page</div>}
+            />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+  
+    expect(
+      await screen.findByText('Login page'),
+    ).toBeInTheDocument()
+    expect(getAccessToken()).toBeNull()
+  })
+  
 })

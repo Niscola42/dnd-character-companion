@@ -17,6 +17,7 @@ import {
 
 import { clearAccessToken } from '../services/auth'
 import { fetchCharacters } from '../services/characters'
+import { useRedirectOnExpiredSession } from '../hooks/useRedirectOnExpiredSession'
 
 export function CharacterListPage() {
   const navigate = useNavigate()
@@ -24,6 +25,7 @@ export function CharacterListPage() {
     queryKey: ['characters'],
     queryFn: fetchCharacters,
   })
+  useRedirectOnExpiredSession(charactersQuery.isError)
 
   function handleLogout() {
     clearAccessToken()

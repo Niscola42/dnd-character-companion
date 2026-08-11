@@ -9,6 +9,11 @@ type LoginResponse = {
   token_type: string
 }
 
+type RegisterResponse = {
+    id: number
+    email: string
+  }
+
 export async function login(
   email: string,
   password: string,
@@ -33,6 +38,31 @@ export async function login(
 
   return response.json()
 }
+
+export async function register(
+    email: string,
+    password: string,
+  ): Promise<RegisterResponse> {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+  
+    if (!response.ok) {
+      const body = await response.json()
+  
+      throw new Error(
+        typeof body.detail === 'string'
+          ? body.detail
+          : 'Unable to create account',
+      )
+    }
+  
+    return response.json()
+  }
 
 export function saveAccessToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token)
