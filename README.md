@@ -6,7 +6,9 @@ A web application for creating, managing, and using D&D 2024 characters during t
 
 Project under development.
 
-Current milestone: V0.1 — Character Core.
+Completed milestone: V0.1 — Character Core.
+
+Current milestone: V0.2 — Resources.
 
 ## Requirements
 
@@ -56,7 +58,7 @@ Stop the stack without deleting database data:
 docker compose down
 ```
 
-Do not use `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume.
+Do not use `docker compose down -v` unless you intentionally want to delete the PostgreSQL volume.  
 
 ## Backend setup
 
