@@ -11,10 +11,16 @@ class AbilityScoresRequest(BaseModel):
     wisdom: int = Field(ge=1, le=20)
     charisma: int = Field(ge=1, le=20)
 
+class HitPointsRequest(BaseModel):
+    maximum: int = Field(gt=0)
+    current: int = Field(ge=0)
+    temporary: int = Field(default=0, ge=0)
+
 
 class CharacterCreateRequest(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     level: int = Field(ge=1, le=5)
+    hit_points: HitPointsRequest
     character_class: str = Field(
         min_length=1,
         max_length=50,
@@ -29,12 +35,14 @@ class CharacterCreateRequest(BaseModel):
     spellcasting_ability: Optional[str] = None
 
 
+
 class CharacterResponse(BaseModel):
     id: int
     name: str
     level: int
     character_class: str
     abilities: AbilityScoresRequest
+    hit_points: HitPointsRequest
     saving_throw_proficiencies: list[str]
     skill_proficiencies: list[str]
     spellcasting_ability: Optional[str]
@@ -48,3 +56,6 @@ class CharacterResponse(BaseModel):
     passive_perception: int
     spell_attack_modifier: Optional[int]
     spell_save_dc: Optional[int]
+
+class HitPointActionRequest(BaseModel):
+    amount: int = Field(ge=0)

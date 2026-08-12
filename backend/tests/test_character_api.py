@@ -1,28 +1,4 @@
-from collections.abc import Iterator
-
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-
-from app.database.connection import get_db_session
-from app.main import app
-
-
-@pytest.fixture
-def api_client(
-    db_session: Session,
-) -> Iterator[TestClient]:
-    def override_session() -> Iterator[Session]:
-        yield db_session
-
-    app.dependency_overrides[get_db_session] = (
-        override_session
-    )
-
-    try:
-        yield TestClient(app)
-    finally:
-        app.dependency_overrides.clear()
 
 
 def register_and_get_token(
@@ -53,6 +29,11 @@ def character_payload() -> dict[str, object]:
             "intelligence": 8,
             "wisdom": 10,
             "charisma": 18,
+        },
+        "hit_points": {
+            "maximum": 42,
+            "current": 31,
+            "temporary": 5,
         },
         "saving_throw_proficiencies": [
             "wisdom",
@@ -88,6 +69,11 @@ def test_character_api_create_list_and_detail(
     created = create_response.json()
     assert created["id"] is not None
     assert created["name"] == "Arthur"
+    assert created["hit_points"] == {
+        "maximum": 42,
+        "current": 31,
+        "temporary": 5,
+    }
     assert created["proficiency_bonus"] == 3
     assert created["initiative"] == 1
     assert created["passive_perception"] == 10
@@ -247,3 +233,133 @@ def test_character_api_update_and_delete(
     assert delete_response.status_code == 204
     assert detail_after_delete.status_code == 404
     assert list_after_delete.json() == []
+
+def test_character_api_manages_hit_points(
+    api_client: TestClient,
+) -> None:
+    token = register_and_get_token(
+        api_client,
+        "healer@example.com",
+    )
+    headers = {
+        "Authorization": f"Bearer {token}",
+    }
+
+    created = api_client.post(
+        "/api/characters",
+        json=character_payload(),
+        headers=headers,
+    ).json()
+    character_id = created["id"]
+
+    damage_response = api_client.post(
+        f"/api/characters/{character_id}/health/damage",
+        json={"amount": 8},
+        headers=headers,
+    )
+
+    assert damage_response.status_code == 200
+    assert damage_response.json()["hit_points"] == {
+        "maximum": 42,
+        "current": 28,
+        "temporary": 0,
+    }
+
+    healing_response = api_client.post(
+        f"/api/characters/{character_id}/health/heal",
+        json={"amount": 10},
+        headers=headers,
+    )
+
+    assert healing_response.status_code == 200
+    assert healing_response.json()["hit_points"] == {
+        "maximum": 42,
+        "current": 38,
+        "temporary": 0,
+    }
+
+    temporary_response = api_client.post(
+        f"/api/characters/{character_id}/health/temporary",
+        json={"amount": 7},
+        headers=headers,
+    )
+
+    assert temporary_response.status_code == 200
+    assert temporary_response.json()["hit_points"] == {
+        "maximum": 42,
+        "current": 38,
+        "temporary": 7,
+    }
+
+    detail_response = api_client.get(
+        f"/api/characters/{character_id}",
+        headers=headers,
+    )
+
+    assert detail_response.json()["hit_points"] == {
+        "maximum": 42,
+        "current": 38,
+        "temporary": 7,
+    }
+
+def test_character_api_protects_hit_point_actions(
+    api_client: TestClient,
+) -> None:
+    owner_token = register_and_get_token(
+        api_client,
+        "hp-owner@example.com",
+    )
+    other_token = register_and_get_token(
+        api_client,
+        "hp-other@example.com",
+    )
+    owner_headers = {
+        "Authorization": f"Bearer {owner_token}",
+    }
+    other_headers = {
+        "Authorization": f"Bearer {other_token}",
+    }
+
+    created = api_client.post(
+        "/api/characters",
+        json=character_payload(),
+        headers=owner_headers,
+    ).json()
+    character_id = created["id"]
+
+    forbidden_response = api_client.post(
+        f"/api/characters/{character_id}/health/damage",
+        json={"amount": 1},
+        headers=other_headers,
+    )
+    negative_response = api_client.post(
+        f"/api/characters/{character_id}/health/damage",
+        json={"amount": -1},
+        headers=owner_headers,
+    )
+    unknown_response = api_client.post(
+        f"/api/characters/{character_id}/health/unknown",
+        json={"amount": 1},
+        headers=owner_headers,
+    )
+    unauthenticated_response = api_client.post(
+        f"/api/characters/{character_id}/health/heal",
+        json={"amount": 1},
+    )
+
+    detail_response = api_client.get(
+        f"/api/characters/{character_id}",
+        headers=owner_headers,
+    )
+
+    assert forbidden_response.status_code == 404
+    assert negative_response.status_code == 422
+    assert unknown_response.status_code == 422
+    assert unauthenticated_response.status_code == 401
+
+    assert detail_response.json()["hit_points"] == {
+        "maximum": 42,
+        "current": 31,
+        "temporary": 5,
+    }
+

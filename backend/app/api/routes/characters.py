@@ -7,6 +7,8 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
+from app.domain.character.health import HitPoints
+
 from app.api.dependencies.auth import get_current_user
 from app.database.connection import get_db_session
 from app.database.models.user import UserModel
@@ -21,6 +23,8 @@ from app.schemas.character import (
     AbilityScoresRequest,
     CharacterCreateRequest,
     CharacterResponse,
+    HitPointsRequest,
+    HitPointActionRequest,
 )
 from app.services.characters import (
     CharacterNotFoundError,
@@ -51,6 +55,11 @@ def from_request(
         ),
         spellcasting_ability=(
             payload.spellcasting_ability
+        ),
+        hit_points=HitPoints(
+            maximum=payload.hit_points.maximum,
+            current=payload.hit_points.current,
+            temporary=payload.hit_points.temporary,
         ),
     )
 
@@ -83,6 +92,11 @@ def to_response(
             intelligence=character.abilities.intelligence,
             wisdom=character.abilities.wisdom,
             charisma=character.abilities.charisma,
+        ),
+        hit_points=HitPointsRequest(
+            maximum=character.hit_points.maximum,
+            current=character.hit_points.current,
+            temporary=character.hit_points.temporary,
         ),
         saving_throw_proficiencies=sorted(
             character.saving_throw_proficiencies
@@ -246,3 +260,38 @@ def delete_character(
     return Response(
         status_code=status.HTTP_204_NO_CONTENT
     )
+
+
+
+@router.post(
+    "/{character_id}/health/{action}",
+    response_model=CharacterResponse,
+)
+def change_character_hit_points(
+    character_id: int,
+    action: str,
+    payload: HitPointActionRequest,
+    user: UserModel = Depends(get_current_user),
+    session: Session = Depends(get_db_session),
+) -> CharacterResponse:
+    try:
+        character = get_service(
+            session
+        ).change_hit_points(
+            character_id=character_id,
+            owner_id=user.id,
+            action=action,
+            amount=payload.amount,
+        )
+    except CharacterNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="character not found",
+        ) from error
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+
+    return to_response(character)

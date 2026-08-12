@@ -65,6 +65,41 @@ class CharacterService:
 
         return updated
 
+    def change_hit_points(
+        self,
+        character_id: int,
+        owner_id: int,
+        action: str,
+        amount: int,
+    ) -> Character:
+        character = self.get_for_owner(
+            character_id=character_id,
+            owner_id=owner_id,
+        )
+
+        actions = {
+            "damage": character.hit_points.take_damage,
+            "heal": character.hit_points.heal,
+            "temporary": (
+                character.hit_points.add_temporary_hp
+            ),
+        }
+
+        try:
+            operation = actions[action]
+        except KeyError as error:
+            raise ValueError(
+                "unknown hit point action"
+            ) from error
+
+        operation(amount)
+
+        return self.update_for_owner(
+            character_id=character_id,
+            owner_id=owner_id,
+            character=character,
+        )
+
     def delete_for_owner(
         self,
         character_id: int,
