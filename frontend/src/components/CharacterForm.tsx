@@ -45,6 +45,11 @@ const defaultCharacter: CharacterCreate = {
     wisdom: 12,
     charisma: 16,
   },
+  hit_points: {
+    maximum: 12,
+    current: 12,
+    temporary: 0,
+  },
   saving_throw_proficiencies: [
     'wisdom',
     'charisma',
@@ -81,6 +86,8 @@ export function CharacterForm({
   const [abilities, setAbilities] = useState({
     ...initialCharacter.abilities,
   })
+  const [maximumHitPoints, setMaximumHitPoints] =
+  useState(initialCharacter.hit_points.maximum)
   const [
     skillProficiencies,
     setSkillProficiencies,
@@ -122,6 +129,11 @@ export function CharacterForm({
       name,
       level,
       abilities,
+      hit_points: {
+        maximum: maximumHitPoints,
+        current: maximumHitPoints,
+        temporary: 0,
+      },
       skill_proficiencies: skillProficiencies,
     })
   }
@@ -180,7 +192,28 @@ export function CharacterForm({
               />
             </Grid>
           </Grid>
-
+          <Box>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              Hit Points
+            </Typography>
+            <TextField
+              label="Maximum hit points"
+              type="number"
+              value={maximumHitPoints}
+              onChange={(event) =>
+                setMaximumHitPoints(
+                  Number(event.target.value),
+                )
+              }
+              slotProps={{
+                htmlInput: {
+                  min: 1,
+                },
+              }}
+              required
+              fullWidth
+            />
+          </Box>
           <Box>
             <Typography variant="h5" sx={{ mb: 2 }}>
               Ability Scores

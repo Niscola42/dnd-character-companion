@@ -4,7 +4,14 @@ from fastapi import (
     HTTPException,
     Response,
     status,
+    File,
+    UploadFile,
 )
+
+from pathlib import Path
+from uuid import uuid4
+
+from app.config import settings
 from sqlalchemy.orm import Session
 
 from app.domain.character.health import HitPoints
@@ -85,6 +92,7 @@ def to_response(
         name=character.name,
         level=character.level,
         character_class=character.character_class,
+        portrait_url=character.portrait_url,
         abilities=AbilityScoresRequest(
             strength=character.abilities.strength,
             dexterity=character.abilities.dexterity,
@@ -182,6 +190,85 @@ def list_characters(
         for character in characters
     ]
 
+
+PORTRAIT_EXTENSIONS = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
+
+
+@router.post(
+    "/{character_id}/portrait",
+    response_model=CharacterResponse,
+)
+async def upload_character_portrait(
+    character_id: int,
+    portrait: UploadFile = File(...),
+    user: UserModel = Depends(get_current_user),
+    session: Session = Depends(get_db_session),
+) -> CharacterResponse:
+    try:
+        extension = PORTRAIT_EXTENSIONS[
+            portrait.content_type or ""
+        ]
+    except KeyError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=(
+                "portrait must be JPEG, PNG, or WebP"
+            ),
+        ) from error
+
+    service = get_service(session)
+
+    try:
+        character = service.get_for_owner(
+            character_id=character_id,
+            owner_id=user.id,
+        )
+    except CharacterNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="character not found",
+        ) from error
+
+    content = await portrait.read(
+        settings.maximum_portrait_size + 1
+    )
+
+    if len(content) > settings.maximum_portrait_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="portrait must not exceed 5 MB",
+        )
+
+    character_directory = (
+        settings.upload_directory
+        / "characters"
+        / str(character_id)
+    )
+    character_directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    filename = f"{uuid4().hex}{extension}"
+    file_path = character_directory / filename
+    file_path.write_bytes(content)
+
+    character.portrait_url = (
+        f"/uploads/characters/"
+        f"{character_id}/{filename}"
+    )
+
+    updated = service.update_for_owner(
+        character_id=character_id,
+        owner_id=user.id,
+        character=character,
+    )
+
+    return to_response(updated)
 
 @router.get(
     "/{character_id}",

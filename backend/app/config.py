@@ -18,6 +18,10 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+    upload_directory: Path = (
+        PROJECT_ROOT / "uploads"
+    )
+    maximum_portrait_size: int = 5 * 1024 * 1024
 
 
 settings = Settings()

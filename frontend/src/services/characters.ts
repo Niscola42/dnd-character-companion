@@ -12,13 +12,21 @@ import {
     wisdom: number
     charisma: number
   }
+
+  export type HitPoints = {
+    maximum: number
+    current: number
+    temporary: number
+  }
   
   export type Character = {
     id: number
     name: string
     level: number
     character_class: string
+    portrait_url: string | null
     abilities: AbilityScores
+    hit_points: HitPoints
     ability_modifiers: Record<string, number>
     saving_throw_modifiers: Record<string, number>
     skill_modifiers: Record<string, number>
@@ -37,6 +45,7 @@ import {
     level: number
     character_class: string
     abilities: AbilityScores
+    hit_points: HitPoints
     saving_throw_proficiencies: string[]
     skill_proficiencies: string[]
     spellcasting_ability: string | null
@@ -55,9 +64,12 @@ import {
     const headers = new Headers(options.headers)
     headers.set('Authorization', `Bearer ${token}`)
   
-    if (options.body) {
-      headers.set('Content-Type', 'application/json')
-    }
+    if (
+        options.body
+        && !(options.body instanceof FormData)
+      ) {
+        headers.set('Content-Type', 'application/json')
+      }
   
     const response = await fetch(
       `${API_URL}${path}`,
@@ -123,4 +135,39 @@ import {
       method: 'POST',
       body: JSON.stringify(character),
     })
+  }
+
+  export type HitPointAction =
+  | 'damage'
+  | 'heal'
+  | 'temporary'
+
+export function changeHitPoints(
+  characterId: number,
+  action: HitPointAction,
+  amount: number,
+): Promise<Character> {
+  return characterRequest(
+    `/characters/${characterId}/health/${action}`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    },
+  )
+}
+
+export function uploadCharacterPortrait(
+    characterId: number,
+    portrait: File,
+  ): Promise<Character> {
+    const formData = new FormData()
+    formData.append('portrait', portrait)
+  
+    return characterRequest(
+      `/characters/${characterId}/portrait`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    )
   }

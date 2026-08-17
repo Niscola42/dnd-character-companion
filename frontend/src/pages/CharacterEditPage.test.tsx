@@ -17,6 +17,7 @@ const character = {
   name: 'Arthur',
   level: 5,
   character_class: 'Paladin',
+  portrait_url: null,
   abilities: {
     strength: 16,
     dexterity: 12,
@@ -24,6 +25,11 @@ const character = {
     intelligence: 8,
     wisdom: 10,
     charisma: 18,
+  },
+  hit_points: {
+    maximum: 42,
+    current: 31,
+    temporary: 5,
   },
   saving_throw_proficiencies: [
     'wisdom',

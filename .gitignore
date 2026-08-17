@@ -10,3 +10,5 @@ __pycache__/
 
 # Local secrets and settings
 .env
+# User-uploaded files
+uploads/

@@ -33,6 +33,7 @@ describe('CharacterListPage', () => {
           name: 'Arthur',
           level: 5,
           character_class: 'Paladin',
+          portrait_url: null,
           abilities: {
             strength: 16,
             dexterity: 12,
@@ -142,5 +143,5 @@ describe('CharacterListPage', () => {
     ).toBeInTheDocument()
     expect(getAccessToken()).toBeNull()
   })
-  
+
 })

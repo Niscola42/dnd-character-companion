@@ -41,6 +41,7 @@ class CharacterResponse(BaseModel):
     name: str
     level: int
     character_class: str
+    portrait_url: Optional[str] = None
     abilities: AbilityScoresRequest
     hit_points: HitPointsRequest
     saving_throw_proficiencies: list[str]

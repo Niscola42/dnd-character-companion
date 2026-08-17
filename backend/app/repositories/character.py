@@ -116,6 +116,7 @@ class CharacterRepository:
         model.character_class = (
             character.character_class
         )
+        model.portrait_url = character.portrait_url
         model.strength = character.abilities.strength
         model.dexterity = character.abilities.dexterity
         model.constitution = (
@@ -153,6 +154,7 @@ class CharacterRepository:
             name=model.name,
             level=model.level,
             character_class=model.character_class,
+            portrait_url=model.portrait_url,
             abilities=AbilityScores(
                 strength=model.strength,
                 dexterity=model.dexterity,

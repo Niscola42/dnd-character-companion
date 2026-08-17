@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI(
     title="D&D Character Companion API",
@@ -18,6 +20,20 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+
+
+)
+settings.upload_directory.mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
+app.mount(
+    "/uploads",
+    StaticFiles(
+        directory=settings.upload_directory
+    ),
+    name="uploads",
 )
 
 app.include_router(api_router)

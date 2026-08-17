@@ -36,6 +36,7 @@ class Character:
     spellcasting_ability: Optional[str] = None
     id: Optional[int] = None
     owner_id: Optional[int] = None
+    portrait_url: Optional[str] = None
 
     def __post_init__(self) -> None:
         if not self.name.strip():

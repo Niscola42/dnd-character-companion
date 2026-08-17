@@ -76,6 +76,11 @@ describe('CharacterCreatePage', () => {
 
     expect(body.name).toBe('Galahad')
     expect(body.character_class).toBe('Paladin')
+    expect(body.hit_points).toEqual({
+        maximum: 12,
+        current: 12,
+        temporary: 0,
+      })
     expect(body.saving_throw_proficiencies).toEqual([
       'wisdom',
       'charisma',

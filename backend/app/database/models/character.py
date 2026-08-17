@@ -68,6 +68,11 @@ class CharacterModel(Base):
         nullable=False,
     )
 
+    portrait_url: Mapped[Optional[str]] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
     strength: Mapped[int] = mapped_column(SmallInteger)
     dexterity: Mapped[int] = mapped_column(SmallInteger)
     constitution: Mapped[int] = mapped_column(SmallInteger)
