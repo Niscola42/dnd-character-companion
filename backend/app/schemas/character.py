@@ -25,6 +25,14 @@ class CharacterCreateRequest(BaseModel):
         min_length=1,
         max_length=50,
     )
+    species: str = Field(
+        min_length=1,
+        max_length=50,
+    )
+    background: str = Field(
+        min_length=1,
+        max_length=100,
+    )
     abilities: AbilityScoresRequest
     saving_throw_proficiencies: set[str] = Field(
         default_factory=set
@@ -42,6 +50,8 @@ class CharacterResponse(BaseModel):
     level: int
     character_class: str
     portrait_url: Optional[str] = None
+    species: Optional[str] = None
+    background: Optional[str] = None
     abilities: AbilityScoresRequest
     hit_points: HitPointsRequest
     saving_throw_proficiencies: list[str]

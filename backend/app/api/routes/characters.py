@@ -51,6 +51,8 @@ def from_request(
         name=payload.name,
         level=payload.level,
         character_class=payload.character_class,
+        species=payload.species,
+        background=payload.background,
         abilities=AbilityScores(
             **payload.abilities.model_dump()
         ),
@@ -93,6 +95,8 @@ def to_response(
         level=character.level,
         character_class=character.character_class,
         portrait_url=character.portrait_url,
+        species=character.species,
+        background=character.background,
         abilities=AbilityScoresRequest(
             strength=character.abilities.strength,
             dexterity=character.abilities.dexterity,

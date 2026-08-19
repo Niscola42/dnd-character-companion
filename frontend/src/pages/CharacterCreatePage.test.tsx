@@ -59,6 +59,14 @@ describe('CharacterCreatePage', () => {
       screen.getByLabelText(/Character name/i),
       'Galahad',
     )
+    await user.type(
+        screen.getByLabelText(/Species/i),
+        'Human',
+      )
+    await user.type(
+        screen.getByLabelText(/Background/i),
+        'Soldier',
+      )
     await user.click(
       screen.getByRole('button', {
         name: 'Create character',
@@ -76,6 +84,8 @@ describe('CharacterCreatePage', () => {
 
     expect(body.name).toBe('Galahad')
     expect(body.character_class).toBe('Paladin')
+    expect(body.species).toBe('Human')
+    expect(body.background).toBe('Soldier')
     expect(body.hit_points).toEqual({
         maximum: 12,
         current: 12,

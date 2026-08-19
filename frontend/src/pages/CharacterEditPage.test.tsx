@@ -17,6 +17,8 @@ const character = {
   name: 'Arthur',
   level: 5,
   character_class: 'Paladin',
+  species: 'Human',
+  background: 'Soldier',
   portrait_url: null,
   abilities: {
     strength: 16,
@@ -127,5 +129,7 @@ describe('CharacterEditPage', () => {
 
     expect(updateRequest.method).toBe('PUT')
     expect(body.name).toBe('Arthur Pendragon')
+    expect(body.species).toBe('Human')
+    expect(body.background).toBe('Soldier')
   })
 })

@@ -37,6 +37,8 @@ const defaultCharacter: CharacterCreate = {
   name: '',
   level: 1,
   character_class: 'Paladin',
+  species: '',
+  background: '',
   abilities: {
     strength: 15,
     dexterity: 10,
@@ -80,6 +82,12 @@ export function CharacterForm({
   onCancel,
 }: CharacterFormProps) {
   const [name, setName] = useState(initialCharacter.name)
+  const [species, setSpecies] = useState(
+    initialCharacter.species,
+  )
+  const [background, setBackground] = useState(
+    initialCharacter.background,
+  )
   const [level, setLevel] = useState(
     initialCharacter.level,
   )
@@ -128,6 +136,8 @@ export function CharacterForm({
       ...initialCharacter,
       name,
       level,
+      species,
+      background,
       abilities,
       hit_points: {
         maximum: maximumHitPoints,
@@ -190,6 +200,29 @@ export function CharacterForm({
                 required
                 fullWidth
               />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+                label="Species"
+                value={species}
+                onChange={(event) =>
+                setSpecies(event.target.value)
+                }
+                required
+                fullWidth
+            />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+                label="Background"
+                value={background}
+                onChange={(event) =>
+                setBackground(event.target.value)
+                }
+                required
+                fullWidth
+            />
             </Grid>
           </Grid>
           <Box>

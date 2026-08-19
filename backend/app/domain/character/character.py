@@ -1,10 +1,9 @@
-from dataclasses import dataclass
 from dataclasses import dataclass, field
-
 from typing import Optional
 
 from app.domain.character.skills import SKILL_ABILITIES
 from app.domain.character.health import HitPoints
+
 
 from app.domain.character.abilities import (
     ABILITY_NAMES,
@@ -37,16 +36,36 @@ class Character:
     id: Optional[int] = None
     owner_id: Optional[int] = None
     portrait_url: Optional[str] = None
+    species: Optional[str] = None
+    background: Optional[str] = None
 
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise ValueError("name must not be blank")
 
         if not self.character_class.strip():
-            raise ValueError("character_class must not be blank")
+            raise ValueError(
+                "character_class must not be blank"
+            )
+
+        if (
+            self.species is not None
+            and not self.species.strip()
+        ):
+            raise ValueError("species must not be blank")
+
+        if (
+            self.background is not None
+            and not self.background.strip()
+        ):
+            raise ValueError(
+                "background must not be blank"
+            )
 
         if not 1 <= self.level <= 5:
-            raise ValueError("level must be between 1 and 5")
+            raise ValueError(
+                "level must be between 1 and 5"
+            )
 
         for ability in self.saving_throw_proficiencies:
             if ability not in ABILITY_NAMES:

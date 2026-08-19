@@ -144,6 +144,8 @@ describe('CharacterDetailPage', () => {
         name: 'Arthur',
         level: 5,
         character_class: 'Paladin',
+        species: 'Human',
+        background: 'Soldier',
         portrait_url: null,
         abilities: {
           strength: 16,
@@ -376,6 +378,11 @@ describe('CharacterDetailPage', () => {
         name: 'Arthur',
       }),
     ).toBeInTheDocument()
+    expect(
+        screen.getByText(
+          'Human · Level 5 Paladin · Soldier',
+        ),
+      ).toBeInTheDocument()
     expect(
       screen.getByText('Modifier: +3'),
     ).toBeInTheDocument()

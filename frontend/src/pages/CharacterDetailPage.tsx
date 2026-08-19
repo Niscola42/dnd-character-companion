@@ -304,12 +304,17 @@ export function CharacterDetailPage() {
                         </Typography>
 
                         <Typography
-                          color="text.secondary"
-                          sx={{ mt: 1 }}
-                        >
-                          Level {characterQuery.data.level}{' '}
-                          {characterQuery.data.character_class}
-                        </Typography>
+                            color="text.secondary"
+                            sx={{ mt: 1 }}
+                            >
+                            {characterQuery.data.species ?? 'Unknown species'}
+                            {' · '}
+                            Level {characterQuery.data.level}{' '}
+                            {characterQuery.data.character_class}
+                            {' · '}
+                            {characterQuery.data.background ??
+                                'Unknown background'}
+                            </Typography>
                       </Box>
 
                       <Stack

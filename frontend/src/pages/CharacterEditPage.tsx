@@ -81,6 +81,8 @@ export function CharacterEditPage() {
         name: character.name,
         level: character.level,
         character_class: character.character_class,
+        species: character.species ?? '',
+        background: character.background ?? '',
         abilities: character.abilities,
         hit_points: character.hit_points,
         saving_throw_proficiencies:

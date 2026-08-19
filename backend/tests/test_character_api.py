@@ -22,6 +22,8 @@ def character_payload() -> dict[str, object]:
         "name": "Arthur",
         "level": 5,
         "character_class": "Paladin",
+        "species": "Human",
+        "background": "Soldier",
         "abilities": {
             "strength": 16,
             "dexterity": 12,
@@ -69,6 +71,8 @@ def test_character_api_create_list_and_detail(
     created = create_response.json()
     assert created["id"] is not None
     assert created["name"] == "Arthur"
+    assert created["species"] == "Human"
+    assert created["background"] == "Soldier"
     assert created["hit_points"] == {
         "maximum": 42,
         "current": 31,
@@ -166,6 +170,21 @@ def test_character_api_enforces_ownership_and_validation(
         json=blank_name_payload,
         headers=first_headers,
     )
+    blank_species_payload = character_payload()
+    blank_species_payload["species"] = "   "
+    blank_species_response = api_client.post(
+        "/api/characters",
+        json=blank_species_payload,
+        headers=first_headers,
+    )
+
+    blank_background_payload = character_payload()
+    blank_background_payload["background"] = "   "
+    blank_background_response = api_client.post(
+        "/api/characters",
+        json=blank_background_payload,
+        headers=first_headers,
+    )
 
     assert forbidden_update.status_code == 404
     assert forbidden_delete.status_code == 404
@@ -176,6 +195,8 @@ def test_character_api_enforces_ownership_and_validation(
     assert unauthenticated_list.status_code == 401
     assert invalid_response.status_code == 422
     assert blank_name_response.status_code == 422
+    assert blank_species_response.status_code == 422
+    assert blank_background_response.status_code == 422
 
 def test_character_api_update_and_delete(
     api_client: TestClient,

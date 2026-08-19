@@ -24,6 +24,8 @@ import {
     name: string
     level: number
     character_class: string
+    species: string | null
+    background: string | null
     portrait_url: string | null
     abilities: AbilityScores
     hit_points: HitPoints
@@ -44,6 +46,8 @@ import {
     name: string
     level: number
     character_class: string
+    species: string | null
+    background: string | null
     abilities: AbilityScores
     hit_points: HitPoints
     saving_throw_proficiencies: string[]

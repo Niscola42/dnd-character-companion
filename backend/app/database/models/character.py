@@ -73,6 +73,15 @@ class CharacterModel(Base):
         nullable=True,
     )
 
+    species: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+    background: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+
     strength: Mapped[int] = mapped_column(SmallInteger)
     dexterity: Mapped[int] = mapped_column(SmallInteger)
     constitution: Mapped[int] = mapped_column(SmallInteger)
